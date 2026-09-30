@@ -1,0 +1,15 @@
+{
+  "type": "example_tonality",
+  "chain-type": "real_template_checklist",
+  "file": "workflows/example_tonality/corpus.yaml",
+
+  "prompt-file": null,
+
+  "epochs": 1,
+  "continue": false,
+
+  "modifier-backend": "litellm",
+  "modifier-model": "qwen3.5:4b",
+  "modifier-app": "example_tonality",
+  "modifier-tier": "fast"
+}
