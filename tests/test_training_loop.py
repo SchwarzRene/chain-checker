@@ -2,7 +2,7 @@ import argparse
 
 import pytest
 
-import bin.trainingLoop as tl
+import chain_checker.trainingLoop as tl
 
 
 class _FakeModel:

@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from bin.checker import (
+from chain_checker.checker import (
     _print_output_shape_suggestion,
     _resolve_check_dir,
     _save_failed_case,

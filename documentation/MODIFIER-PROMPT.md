@@ -1,6 +1,6 @@
 # Modifier Prompt
 
-What the modifier LLM actually reads on every epoch of `bin/trainingLoop.py`, in which order the pieces are put together, and which extra note gets attached when.
+What the modifier LLM actually reads on every epoch of `trainingLoop.py`, in which order the pieces are put together, and which extra note gets attached when.
 Code lives in `modifier/model/` — `instructions.py` holds the fixed text, `modifier_model.py` puts it together, `extraction.py` pulls the new prompt out of the reply.
 
 ---

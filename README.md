@@ -18,11 +18,11 @@
 
 ## What it does
 
-- **`bin/checker.py`** — one pass over a corpus, comparing each case's
+- **`checker.py`** — one pass over a corpus, comparing each case's
   expected output against the chain's real output, key by key:
 
   ```
-  (.venv)➜backend python bin/checker.py
+  (.venv)➜backend python chain_checker/checker.py
       (CHECKER) Running checker
       (CHECKER)   config: 'chain_checker/config.json'
       (CHECKER)   type: '<type>' (config)
@@ -38,14 +38,14 @@
       (CHECKER)-(REPORT) Report written to workflows/<type>/.temp/template_checklist/check_0/report.html
   ```
 
-- **`bin/trainingLoop.py`** — For a chain written to modify a rewritable system prompt, it can also drive an LLM-in-the-loop: every epoch it scores the chain, instructs a **modifier**
+- **`trainingLoop.py`** — For a chain written to modify a rewritable system prompt, it can also drive an LLM-in-the-loop: every epoch it scores the chain, instructs a **modifier**
 LLM to rewrite the prompt — then scores the new prompt
 next epoch, and repeats. The goal is a prompt that scores higher without
 costing more tokens, found automatically instead of by hand-editing and
 re-running.
 
   ```
-  (.venv)➜backend python bin/trainingLoop.py
+  (.venv)➜backend python chain_checker/trainingLoop.py
       (R)-(MODIFIER) Starting a new run: workflows/<type>/.temp/template_checklist/run_0
       (R)-(MODIFIER) Running epoch 1/4...
       (R)-(MODIFIER) epoch 1/4 done - overall accuracy of 0.75, chain used 6840 tokens across 9 call(s) (avg 760.0/entry)
@@ -63,8 +63,8 @@ re-running.
 | Goal | Start here |
 |---|---|
 | Run a chain once against a corpus, or train its prompt automatically | [Usage](documentation/USAGE.md) |
-| Write or register a chain `bin/checker.py` can test | [Checker Chain Requirements](documentation/CHECKER-CHAIN-REQUIREMENTS.md) |
-| Write or register a chain `bin/trainingLoop.py` can train | [Loop Chain Requirements](documentation/LOOP-CHAIN-REQUIREMENTS.md) |
+| Write or register a chain `checker.py` can test | [Checker Chain Requirements](documentation/CHECKER-CHAIN-REQUIREMENTS.md) |
+| Write or register a chain `trainingLoop.py` can train | [Loop Chain Requirements](documentation/LOOP-CHAIN-REQUIREMENTS.md) |
 | Write a corpus `.yaml` | [Dataset Requirements](documentation/DATASET-REQUIREMENTS.md) |
 | Understand what the modifier LLM reads each epoch and which note is attached when | [Modifier Prompt](documentation/MODIFIER-PROMPT.md) |
 
@@ -105,10 +105,10 @@ imports its siblings as `chain_checker.*`:
 git clone https://github.com/SchwarzRene/chain-checker.git chain_checker
 ```
 
-The host supplies:
+The entry points `checker.py` and `trainingLoop.py` sit at the package root.
+Run them from the host project's root, e.g. `python chain_checker/checker.py`;
+each puts the host root on `sys.path` itself. The host supplies:
 
-- the entry points `bin/checker.py` and `bin/trainingLoop.py`, which parse
-  arguments and call into this package;
 - `core.appconfig.ChainAppConfig`, the Django app config base class whose
   `llm(tier)` hands out a LangChain chat model per tier;
 - `core.registry.registry`, where chains register their

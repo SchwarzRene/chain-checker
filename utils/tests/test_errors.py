@@ -45,7 +45,7 @@ def test_fail_prints_to_stderr_not_stdout(capsys):
     # message is the user-facing diagnostic. It is - which is the argument for
     # stderr, not against it. checker.py and trainingLoop.py stream progress
     # to stdout, so on stdout a fatal error was interleaved with normal
-    # output, and `python bin/checker.py > run.log` swallowed it outright:
+    # output, and `python chain_checker/checker.py > run.log` swallowed it outright:
     # the log held the run, stderr held nothing, and CI reported a bare
     # exit code 1 with no reason attached to it.
     with pytest.raises(SystemExit):

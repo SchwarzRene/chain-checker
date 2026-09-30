@@ -1,6 +1,6 @@
 # Loop Chain Requirements
 
-`bin/trainingLoop.py` runs a chain exactly like `bin/checker.py` does, case by case, computing the same metrics. Everything in [Checker Chain Requirements](CHECKER-CHAIN-REQUIREMENTS.md) applies here too — this page only covers what a chain needs *in addition* to become trainable.
+`trainingLoop.py` runs a chain exactly like `checker.py` does, case by case, computing the same metrics. Everything in [Checker Chain Requirements](CHECKER-CHAIN-REQUIREMENTS.md) applies here too — this page only covers what a chain needs *in addition* to become trainable.
 
 ---
 

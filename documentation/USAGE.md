@@ -1,13 +1,13 @@
 # Usage
 
-Two entry points, both plain scripts in `bin/` — called directly, not with `python -m`. Run them from the repo root (`backend/`): the corpus auto-search globs `workflows/<type>/*.yaml` relative to the working directory, and every path printed in a report is written relative to it too. </br> -> `bin/checker.py` :  runs a chain once against a corpus and reports pass/fail. </br> -> `bin/trainingLoop.py` :  repeats that same pass/fail logic over a fixed number of epochs and feeds the results to an LLM ("the modifier") that rewrites the chain's system prompt, trying to raise accuracy.
+Two entry points, both plain scripts at the package root — called directly, not with `python -m`. Run them from the host project's root: the corpus auto-search globs `workflows/<type>/*.yaml` relative to the working directory, and every path printed in a report is written relative to it too. </br> -> `checker.py` :  runs a chain once against a corpus and reports pass/fail. </br> -> `trainingLoop.py` :  repeats that same pass/fail logic over a fixed number of epochs and feeds the results to an LLM ("the modifier") that rewrites the chain's system prompt, trying to raise accuracy.
 
 ---
 
 ### Run it
 
 ```
-(.venv)➜backend python bin/checker.py
+(.venv)➜backend python chain_checker/checker.py
     (CHECKER) Running checker
     (CHECKER)   config: 'chain_checker/config.json'
     (CHECKER)   type: '<type>' (config)
@@ -25,7 +25,7 @@ Two entry points, both plain scripts in `bin/` — called directly, not with `py
 ```
 
 ```
-(.venv)➜backend python bin/trainingLoop.py
+(.venv)➜backend python chain_checker/trainingLoop.py
     (R)-(MODIFIER) Starting a new run: workflows/<type>/.temp/template_checklist/run_0
     (R)-(MODIFIER) Running epoch 1/4...
     (R)-(MODIFIER) epoch 1/4 done - overall accuracy of 0.75, chain used 6840 tokens across 9 call(s) (avg 760.0/entry)
@@ -104,8 +104,8 @@ chain-type: template_checklist
 epochs: 6
 ```
 ```
-(.venv)➜backend python bin/trainingLoop.py --config my_run.yaml
-(.venv)➜backend python bin/trainingLoop.py --config my_run.yaml --epochs 10   # overrides just this one key
+(.venv)➜backend python chain_checker/trainingLoop.py --config my_run.yaml
+(.venv)➜backend python chain_checker/trainingLoop.py --config my_run.yaml --epochs 10   # overrides just this one key
 ```
 
 Keys use the flag's own spelling (`chain-type`, `continue`). A typo in an explicit `--config` fails loudly and lists the valid keys
@@ -115,7 +115,7 @@ Keys use the flag's own spelling (`chain-type`, `continue`). A typo in an explic
 ### Improve the prompt automatically
 
 ```
-(.venv)➜backend python bin/trainingLoop.py --type <type> --chain-type template_checklist --epochs 4
+(.venv)➜backend python chain_checker/trainingLoop.py --type <type> --chain-type template_checklist --epochs 4
 ```
 ```
 (R)-(MODIFIER) Starting a new run: workflows/<type>/.temp/template_checklist/run_0
@@ -141,14 +141,14 @@ Both tools support `--continue`, but not the same thing - `checker.py` has no ep
 Without `--continue`, every invocation starts a fresh `check_N` and calls the model for every case, even if an identical run already exists:
 
 ```
-(.venv)➜backend python bin/checker.py --type <type> --chain-type template_checklist --chain-tier fast   # -> check_0_fast
-(.venv)➜backend python bin/checker.py --type <type> --chain-type template_checklist --chain-tier fast   # -> check_1_fast, check_0_fast untouched
+(.venv)➜backend python chain_checker/checker.py --type <type> --chain-type template_checklist --chain-tier fast   # -> check_0_fast
+(.venv)➜backend python chain_checker/checker.py --type <type> --chain-type template_checklist --chain-tier fast   # -> check_1_fast, check_0_fast untouched
 ```
 
 `--continue` finds the **newest** existing `check_N` whose saved `prompt.txt`/`config.json` match this run's prompt and `{type, chain, tier}`, and recalls whatever's already saved in its `entries/` instead of calling the model again, then runs only the cases still missing before writing the report:
 
 ```
-(.venv)➜backend python bin/checker.py --type <type> --chain-type template_checklist --chain-tier fast --continue
+(.venv)➜backend python chain_checker/checker.py --type <type> --chain-type template_checklist --chain-tier fast --continue
     (CHECKER) --continue: recalling cached predictions from workflows/<type>/.temp/template_checklist/check_0_fast
     (CHECKER) 7/9 case(s) recalled from workflows/<type>/.temp/template_checklist/check_0_fast/entries
     (CHECKER) Evaluating case (8)/(9) case-8...
@@ -165,7 +165,7 @@ The match is made on those two saved files, never on the directory name — the 
 - **No `check_N` at all yet** → says so and starts a fresh one, same as omitting the flag
 
 ```
-(.venv)➜backend python bin/checker.py --chain-tier fast --continue   # after a thinking run
+(.venv)➜backend python chain_checker/checker.py --chain-tier fast --continue   # after a thinking run
     (CHECKER) --continue given, but none of the 1 existing run(s) under workflows/<type>/.temp/template_checklist was made with this run's prompt and chain config (tier 'fast') - the newest, 'check_0_thinking', differs. Leaving them untouched and starting fresh in workflows/<type>/.temp/template_checklist/check_1_fast instead.
 ```
 
@@ -176,8 +176,8 @@ If nothing new is added between two entries dropped into the same `entries/` fol
 Without `--continue`, every invocation starts a fresh, independent `run_N` (`run_0`, `run_1`, ...) from the chain's real original prompt:
 
 ```
-(.venv)➜backend python bin/trainingLoop.py --type <type> --chain-type template_checklist --modifier-model qwen3.5:4b   # -> run_0
-(.venv)➜backend python bin/trainingLoop.py --type <type> --chain-type template_checklist --modifier-model qwen3.5:30b  # -> run_1, run_0 untouched
+(.venv)➜backend python chain_checker/trainingLoop.py --type <type> --chain-type template_checklist --modifier-model qwen3.5:4b   # -> run_0
+(.venv)➜backend python chain_checker/trainingLoop.py --type <type> --chain-type template_checklist --modifier-model qwen3.5:30b  # -> run_1, run_0 untouched
 ```
 
 Once 2+ runs exist, a side-by-side comparison appears automatically at `workflows/<type>/.temp/<chain-type>/runs_overview.html`.
@@ -185,8 +185,8 @@ Once 2+ runs exist, a side-by-side comparison appears automatically at `workflow
 `--continue` finds the *newest* `run_N` trained against this same chain config and continues that run until number of provided epochs are reached, picking up exactly where it left off. Also runs which stopped mid epoch are continued exactly at the entry they stopped.
 
 ```
-(.venv)➜backend python bin/trainingLoop.py  --epochs 4    # runs epoch 1-4
-(.venv)➜backend python bin/trainingLoop.py  --epochs 8 --continue   # picks up from epoch 4, adds 5-8
+(.venv)➜backend python chain_checker/trainingLoop.py  --epochs 4    # runs epoch 1-4
+(.venv)➜backend python chain_checker/trainingLoop.py  --epochs 8 --continue   # picks up from epoch 4, adds 5-8
 ```
 
 Resumes cleanly from where it stopped; <br>If every requested epoch is already done, it says so and exits. The modifier's own memory of earlier epochs survives too — its history is replayed back in from disk before resuming, so its next rewrite still sees every prior epoch, not just this process's own.
@@ -194,7 +194,7 @@ Resumes cleanly from where it stopped; <br>If every requested epoch is already d
 Which run may be continued is decided by the `{type, chain, tier}` in each run's first epoch, not by the `_<tier>` suffix in its name. A run trained against **another tier** is skipped rather than extended — appending this tier's epochs to it would leave one `run_N` whose epochs were trained against two different models, and one `summary` averaging over both:
 
 ```
-(.venv)➜backend python bin/trainingLoop.py --chain-tier fast --epochs 4 --continue   # after a thinking run
+(.venv)➜backend python chain_checker/trainingLoop.py --chain-tier fast --epochs 4 --continue   # after a thinking run
     (R)-(MODIFIER) --continue given, but none of the 1 existing run(s) under workflows/<type>/.temp/template_checklist was trained against this chain config (tier 'fast') - continuing one of them would mix two tiers into a single run. Leaving them untouched and starting workflows/<type>/.temp/template_checklist/run_1_fast fresh instead.
 ```
 
@@ -207,7 +207,7 @@ Unlike the checker's `--continue`, only the config is compared, never the prompt
 By default the modifier only sees the corpus it's improving against, so it's easy to fix exactly the false examples shown without generalizing. <br>`--val-file` tests the current prompt on a *second* dataset every epoch:
 
 ```
-(.venv)➜backend python bin/trainingLoop.py --file workflows/<type>/corpus.yaml --val-file workflows/<type>/val/template_checklist_val.yaml
+(.venv)➜backend python chain_checker/trainingLoop.py --file workflows/<type>/corpus.yaml --val-file workflows/<type>/val/template_checklist_val.yaml
 ```
 
 Val results are **purely for reporting** — the modifier never reads them. If train accuracy climbs but val doesn't, it's overfitting the training examples rather than learning the actual rule. Every report gains train/val side by side once used.
@@ -296,7 +296,7 @@ exactly this shape, one item per rule listed above:
 Run it with the --prompt-file flag
 
 ```
-(.venv)➜backend python bin/checker.py --prompt-file /tmp/candidate.txt
+(.venv)➜backend python chain_checker/checker.py --prompt-file /tmp/candidate.txt
 ```
 ```
 (CHECKER) Using candidate prompt from '/tmp/candidate.txt' instead of chain 'template_checklist's real SYSTEM_PROMPT

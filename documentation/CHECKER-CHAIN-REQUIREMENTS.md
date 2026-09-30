@@ -1,6 +1,6 @@
 # Checker Chain Requirements
 
-`bin/checker.py` runs a chain against a fixed set of labeled test cases. Everything below is checked before any case is run, and applies to any registered chain — leaf chain or pure orchestrator.
+`checker.py` runs a chain against a fixed set of labeled test cases. Everything below is checked before any case is run, and applies to any registered chain — leaf chain or pure orchestrator.
 
 ---
 

@@ -1,6 +1,6 @@
 # Dataset Requirements
 
-`bin/checker.py` and `bin/trainingLoop.py` both run a chain against a fixed set of
+`checker.py` and `trainingLoop.py` both run a chain against a fixed set of
 labeled test cases. This page describes the .yaml shape a
 dataset file needs, and what gets checked before any case is run.
 
