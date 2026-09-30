@@ -105,7 +105,7 @@ imports its siblings as `chain_checker.*`:
 git clone https://github.com/SchwarzRene/chain-checker.git chain_checker
 ```
 
- The host supplies:
+The host supplies:
 
 - the entry points `bin/checker.py` and `bin/trainingLoop.py`, which parse
   arguments and call into this package;
